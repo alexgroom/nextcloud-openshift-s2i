@@ -1,0 +1,64 @@
+FROM registry.access.redhat.com/ubi8/php-80
+
+USER 0
+
+RUN set -ex; \
+    dnf -y module reset nginx; \
+    dnf -y module install nginx:1.20; \
+    dnf -y update; \
+    dnf -y install php-devel php-pecl-zip; \
+    dnf -y clean all; \
+    rm -rf /var/cache/dnf;
+
+# Install redis for PHP session handling and common caching
+# https://github.com/phpredis/phpredis/blob/develop/INSTALL.markdown
+RUN set -ex; \
+    cd /tmp; \
+    : =====igbinary ===== ;\
+    wget --no-check-certificate https://pecl.php.net/get/igbinary-3.2.12.tgz; \
+    tar -zxf igbinary-*.tgz; \
+    rm igbinary-*.tgz; \
+    cd igbinary-*; \
+    phpize; \
+    ./configure; \
+    make -j4 && make install; \
+    echo -e "; Enable igbinary extension module\nextension = igbinary.so" > /etc/php.d/40-igbinary.ini; \
+    cd ..; \
+    : ===== msgpack ===== ;\
+    wget --no-check-certificate https://pecl.php.net/get/msgpack-2.1.2.tgz; \
+    tar -zxf msgpack-*.tgz; \
+    rm msgpack-*.tgz; \
+    cd msgpack-*; \
+    phpize; \
+    ./configure; \
+    make -j4 && make install; \
+    echo -e "; Enable msgpack extension module\nextension = msgpack.so" > /etc/php.d/40-msgpack.ini; \
+    cd ..; \
+    : ===== redis ===== ;\
+    wget --no-check-certificate https://pecl.php.net/get/redis-5.3.7.tgz; \
+    tar -zxf redis-*.tgz; \
+    rm redis-*.tgz; \
+    cd redis-*; \
+    phpize; \
+    ./configure --enable-redis-igbinary --enable-redis-msgpack --enable-redis-lzf; \
+    make -j4 && make install; \
+    echo -e "; Enable redis extension module\nextension = redis.so" > /etc/php.d/50-redis.ini; \
+    cd ..; \
+    : ===== cleanup ===== ;\
+    rm -fR redis* igbinary* msgpack*
+
+ENV NEXTCLOUD_VERSION 26.0.3
+
+RUN curl -fsSL -o nextcloud.tar.bz2 "https://download.nextcloud.com/server/releases/nextcloud-${NEXTCLOUD_VERSION}.tar.bz2"; \
+  tar -xjf nextcloud.tar.bz2 -C ${HOME} --strip-components=1; \ 
+  rm nextcloud.tar.bz2; \
+  fix-permissions ${HOME}/;\ 
+  fix-permissions /var/www/;\
+  mkdir -p ${HOME}/data;\ 
+  mkdir ${HOME}/custom_apps;\ 
+  rm -fR ${HOME}/nginx-cfg;\ 
+  chmod +x ${HOME}/occ;
+
+COPY *.sh /
+USER 1001
+CMD ["/entrypoint.sh"]
