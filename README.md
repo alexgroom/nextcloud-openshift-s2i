@@ -4,9 +4,9 @@ Get NextCloud ready to run on OpenShift with
 
 ## Quick Start
 
-$ oc new-app quay.io/cuppett/ubi8-php:80~https://github.com/cuppett/nextcloud-openshift-s2i.git
+$ oc new-app quay.io/agroom/ubi8-php80~https://github.com/cuppett/nextcloud-openshift-s2i.git
 
-    --> Found container image 328ff90 (2 hours old) from quay.io for "quay.io/cuppett/ubi8-php:80"
+    --> Found container image 328ff90 (2 hours old) from quay.io for "quay.io/agroom/ubi8-php80"
     
         Apache 2.4 with PHP 8.0 
         ----------------------- 
