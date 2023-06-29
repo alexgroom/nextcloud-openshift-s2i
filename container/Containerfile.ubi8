@@ -60,5 +60,8 @@ RUN curl -fsSL -o nextcloud.tar.bz2 "https://download.nextcloud.com/server/relea
   chmod +x ${HOME}/occ;
 
 COPY *.sh /
+COPY apache/config/* ${HOME}/config/
+COPY upgrade.exclude /
+
 USER 1001
 CMD ["/entrypoint.sh"]

@@ -11,6 +11,47 @@ directory_empty() {
     [ -z "$(ls -A "$1/")" ]
 }
 
+run_as() {
+    echo "run_as: **Don't do this***"
+#    if [ "$(id -u)" = 0 ]; then
+#        su -p "$user" -s /bin/sh -c "$1"
+#    else
+#        sh -c "$1"
+#    fi
+}
+
+# Execute all executable files in a given directory in alphanumeric order
+run_path() {
+    local hook_folder_path="/docker-entrypoint-hooks.d/$1"
+    local return_code=0
+
+    echo "=> Searching for scripts (*.sh) to run, located in the folder: ${hook_folder_path}"
+
+    if [ -z "$(ls -A "${hook_folder_path}")" ]; then
+      echo "==> but the hook folder \"$(basename "${hook_folder_path}")\" is empty, so nothing to do"
+        return 0
+    fi
+
+    (
+        for script_file_path in "${hook_folder_path}/"*.sh; do
+            if ! [ -x "${script_file_path}" ] && [ -f "${script_file_path}" ]; then
+                echo "==> The script \"${script_file_path}\" in the folder \"${hook_folder_path}\" was skipping, because it didn't have the executable flag"
+                continue
+            fi
+
+            echo "==> Running the script (cwd: $(pwd)): \"${script_file_path}\""
+
+            run_as "${script_file_path}" || return_code="$?"
+
+            if [ "${return_code}" -ne "0" ]; then
+                echo "==> Failed at executing \"${script_file_path}\". Exit code: ${return_code}"
+                exit 1
+            fi
+
+            echo "==> Finished the script: \"${script_file_path}\""
+        done
+    )
+}
 
 # usage: file_env VAR [DEFAULT]
 #    ie: file_env 'XYZ_DB_PASSWORD' 'example'
@@ -62,8 +103,7 @@ if version_greater "$image_version" "$installed_version"; then
     else
         rsync_options="-rlD"
     fi
-#    rsync $rsync_options --delete --exclude-from=/opt/app-root/src/upgrade.exclude /opt/app-root/src/ /var/www/html/
-    rsync $rsync_options --delete /opt/app-root/src/ /var/www/html/
+    rsync $rsync_options --delete --exclude-from=/upgrade.exclude /opt/app-root/src/ /var/www/html/
     for dir in config data custom_apps themes; do
         if [ ! -d "/var/www/html/$dir" ] || directory_empty "/var/www/html/$dir"; then
             rsync $rsync_options --include "/$dir/" --exclude '/*' /opt/app-root/src/ /var/www/html/
