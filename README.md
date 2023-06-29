@@ -4,7 +4,7 @@ Get NextCloud ready to run on OpenShift with
 
 ## Quick Start
 
-$ oc new-app quay.io/agroom/ubi8-php80~https://github.com/cuppett/nextcloud-openshift-s2i.git
+$ oc new-app quay.io/agroom/ubi8-php80~https://github.com/alexgroom/nextcloud-openshift-s2i.git
 
     --> Found container image 328ff90 (2 hours old) from quay.io for "quay.io/agroom/ubi8-php80"
     
@@ -15,7 +15,7 @@ $ oc new-app quay.io/agroom/ubi8-php80~https://github.com/cuppett/nextcloud-open
         Tags: builder, php, php80, php-80
     
         * An image stream tag will be created as "ubi8-php:74" that will track the source image
-        * A source build using source code from https://github.com/cuppett/nextcloud-openshift-s2i.git will be created
+        * A source build using source code from https://github.com/alexgroom/nextcloud-openshift-s2i.git will be created
           * The resulting image will be pushed to image stream tag "nextcloud-openshift-s2i:latest"
           * Every time "ubi8-php:74" changes a new build will be triggered
     
