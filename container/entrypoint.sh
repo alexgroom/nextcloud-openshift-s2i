@@ -60,6 +60,7 @@ if version_greater "$installed_version" "$image_version"; then
     exit 1
 fi
 
+install=false
 if version_greater "$image_version" "$installed_version"; then
     echo "Initializing nextcloud $image_version ..."
     if [ "$installed_version" != "0.0.0.0" ]; then
@@ -81,7 +82,6 @@ if version_greater "$image_version" "$installed_version"; then
     echo "Initializing finished"
 
     #install
-    install=false
     if [ "$installed_version" = "0.0.0.0" ]; then
         echo "New nextcloud instance"
 
