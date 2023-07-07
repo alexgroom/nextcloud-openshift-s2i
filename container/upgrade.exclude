@@ -4,3 +4,9 @@
 /themes/
 /version.php
 /nextcloud-init-sync.lock
+/.wget-hsts
+/.s2i/
+/.wget-hsts
+/httpd-cfg
+/php-post-assemble
+/upgrade.exclude

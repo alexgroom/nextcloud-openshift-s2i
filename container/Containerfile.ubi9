@@ -1,10 +1,8 @@
-FROM registry.access.redhat.com/ubi8/php-80
+FROM registry.access.redhat.com/ubi9/php-81
 
 USER 0
 
 RUN set -ex; \
-    dnf -y module reset nginx; \
-    dnf -y module install nginx:1.20; \
     dnf -y update; \
     dnf -y install php-devel php-pecl-zip; \
     dnf -y clean all; \
@@ -49,6 +47,7 @@ RUN set -ex; \
 
 ENV NEXTCLOUD_VERSION 26.0.3
 
+
 RUN curl -fsSL -o nextcloud.tar.bz2 "https://download.nextcloud.com/server/releases/nextcloud-${NEXTCLOUD_VERSION}.tar.bz2"; \
   tar -xjf nextcloud.tar.bz2 -C ${HOME} --strip-components=1; \ 
   rm nextcloud.tar.bz2; \
@@ -57,8 +56,13 @@ RUN curl -fsSL -o nextcloud.tar.bz2 "https://download.nextcloud.com/server/relea
   mkdir -p ${HOME}/data;\ 
   mkdir ${HOME}/custom_apps;\ 
   rm -fR ${HOME}/nginx-cfg;\ 
-  chmod +x ${HOME}/occ; 
-
+  chmod +x ${HOME}/occ; \
+  mkdir -p /run/php-fpm; \
+  chmod -R a+rwx /run/php-fpm; \
+  chown -R 1001:0 /run/php-fpm; \
+  mkdir -p /var/log/php-fpm; \
+  chmod -R a+rwx /var/log/php-fpm; \
+  chown -R 1001:0 /var/log/php-fpm;
 
 COPY *.sh /
 COPY apache/config/* ${HOME}/config/
