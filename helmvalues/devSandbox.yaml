@@ -71,7 +71,7 @@ phpClientHttpsFix:
   protocol: https
 
 nextcloud:
-  host: aero1-nextcloud-agroom-dev.apps.sandbox-m4.g2pi.p1.openshiftapps.com
+  host: localhost
   username: admin
   password: r3dh4t1!
   ## Use an existing secret
@@ -168,7 +168,8 @@ nextcloud:
   #      secretKeyRef:
   #        name: nextcloud
   #        key: secret_key
-
+    - name: NEXTCLOUD_TRUSTED_DOMAINS
+      value: "*.p1.openshiftapps.com"
   # Extra init containers that runs before pods start.
   extraInitContainers: []
   #  - name: do-something
@@ -243,7 +244,7 @@ internalDatabase:
 ## External database configuration
 ##
 externalDatabase:
-  enabled: true
+  enabled: false 
 
   ## Supported database engines: mysql or postgresql
   type: mysql
@@ -275,7 +276,7 @@ mariadb:
   ## Whether to deploy a mariadb server from the bitnami mariab db helm chart
   # to satisfy the applications database requirements. if you want to deploy this bitnami mariadb, set this and externalDatabase to true
   # To use an ALREADY DEPLOYED mariadb database, set this to false and configure the externalDatabase parameters
-  enabled: false
+  enabled: true
 
   auth:
     database: nextcloud
@@ -298,6 +299,16 @@ mariadb:
       # storageClass: ""
       accessMode: ReadWriteOnce
       size: 8Gi
+    containerSecurityContext: 
+      allowPrivilegeEscalation: false
+      enabled: false
+      privileged: false
+      runAsUser: 1000730000
+      runAsNonRoot: true
+    podSecurityContext: 
+      enabled: false
+      fsGroup: 1000730000
+
 
 ##
 ## PostgreSQL chart configuration
